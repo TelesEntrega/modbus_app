@@ -17,34 +17,69 @@ try:
 except ImportError:
     print("[AI ANALYZER] python-dotenv não instalado - usando variáveis de ambiente do sistema")
 
+# Verificar disponibilidade de APIs de IA
 try:
     import google.generativeai as genai
     GEMINI_AVAILABLE = True
 except ImportError:
     GEMINI_AVAILABLE = False
-    print("[AI ANALYZER] Google Gemini não instalado - análise de IA desabilitada")
+    genai = None
+
+try:
+    from groq import Groq
+    GROQ_AVAILABLE = True
+except ImportError:
+    GROQ_AVAILABLE = False
+    Groq = None
+
+if not GEMINI_AVAILABLE and not GROQ_AVAILABLE:
+    print("[AI ANALYZER] ⚠️ Nenhuma API de IA disponível - rodando em modo automático")
+    print("[AI ANALYZER] Instale: pip install google-generativeai groq")
 
 class TemperatureAIAnalyzer:
     """Analisa padrões de temperatura usando IA"""
     
-    def __init__(self, api_key=None):
+    def __init__(self, api_key=None, groq_api_key=None, provider=None):
         """
         Args:
             api_key: Google Gemini API key (ou usa variável GEMINI_API_KEY)
+            groq_api_key: Groq API key (ou usa variável GROQ_API_KEY)
+            provider: 'gemini', 'groq' ou None (auto-detecta)
         """
-        self.api_key = api_key or os.getenv('GEMINI_API_KEY')
+        self.gemini_key = api_key or os.getenv('GEMINI_API_KEY')
+        self.groq_key = groq_api_key or os.getenv('GROQ_API_KEY')
+        self.provider = provider
         self.model = None
+        self.groq_client = None
         
-        if GEMINI_AVAILABLE and self.api_key:
+        # Auto-detectar qual provider usar
+        if not self.provider:
+            if self.groq_key and GROQ_AVAILABLE:
+                self.provider = 'groq'
+            elif self.gemini_key and GEMINI_AVAILABLE:
+                self.provider = 'gemini'
+        
+        # Inicializar Groq
+        if self.provider == 'groq' and GROQ_AVAILABLE and self.groq_key:
             try:
-                genai.configure(api_key=self.api_key)
+                self.groq_client = Groq(api_key=self.groq_key)
+                print("[AI ANALYZER] 🚀 Groq AI configurado ✅ (Rápido & Gratuito)")
+            except Exception as e:
+                print(f"[AI ANALYZER] Erro ao configurar Groq: {e}")
+                self.groq_client = None
+        
+        # Inicializar Gemini
+        elif self.provider == 'gemini' and GEMINI_AVAILABLE and self.gemini_key:
+            try:
+                genai.configure(api_key=self.gemini_key)
                 self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
                 print("[AI ANALYZER] Google Gemini configurado ✅")
             except Exception as e:
                 print(f"[AI ANALYZER] Erro ao configurar Gemini: {e}")
                 self.model = None
-        else:
-            print("[AI ANALYZER] Rodando sem IA (forneça GEMINI_API_KEY)")
+        
+        if not self.model and not self.groq_client:
+            print("[AI ANALYZER] Rodando sem IA (forneça GEMINI_API_KEY ou GROQ_API_KEY)")
     
     def analyze_temperature_data(self, readings, statistics=None):
         """
@@ -57,7 +92,7 @@ class TemperatureAIAnalyzer:
         Returns:
             Dict com análise ou fallback sem IA
         """
-        if not self.model:
+        if not self.model and not self.groq_client:
             print("[AI ANALYZER] Modelo não configurado - usando fallback")
             return self._fallback_analysis(readings, statistics)
         
@@ -65,23 +100,38 @@ class TemperatureAIAnalyzer:
             # Preparar dados para IA
             prompt = self._build_prompt(readings, statistics)
             
-            print(f"[AI ANALYZER] Chamando Gemini com {len(readings)} leituras...")
+            print(f"[AI ANALYZER] Chamando {self.provider.upper()} com {len(readings)} leituras...")
             
-            # Chamar Gemini com retry
+            # Chamar API com retry
             max_retries = 3
             for attempt in range(max_retries):
                 try:
-                    response = self.model.generate_content(prompt)
+                    # Groq API
+                    if self.provider == 'groq' and self.groq_client:
+                        response = self.groq_client.chat.completions.create(
+                            model="llama-3.3-70b-versatile",
+                            messages=[{"role": "user", "content": prompt}],
+                            temperature=0.7,
+                            max_tokens=1024
+                        )
+                        response_text = response.choices[0].message.content
                     
-                    # Verificar se há resposta válida
-                    if not response or not response.text:
-                        raise ValueError("Resposta vazia do Gemini")
+                    # Gemini API
+                    elif self.provider == 'gemini' and self.model:
+                        response = self.model.generate_content(prompt)
+                        if not response or not response.text:
+                            raise ValueError("Resposta vazia do Gemini")
+                        response_text = response.text
                     
-                    print(f"[AI ANALYZER] ✅ Gemini respondeu com sucesso!")
+                    else:
+                        raise ValueError("Nenhum provider configurado")
+                    
+                    print(f"[AI ANALYZER] ✅ {self.provider.upper()} respondeu com sucesso!")
                     
                     return {
                         'ai_powered': True,
-                        'analysis': response.text,
+                        'provider': self.provider,
+                        'analysis': response_text,
                         'timestamp': datetime.now().isoformat(),
                         'data_points': len(readings)
                     }
@@ -95,7 +145,7 @@ class TemperatureAIAnalyzer:
                         raise  # Re-raise na última tentativa
             
         except Exception as e:
-            print(f"[AI ANALYZER] ❌ ERRO CRÍTICO Gemini: {type(e).__name__}")
+            print(f"[AI ANALYZER] ❌ ERRO CRÍTICO {self.provider.upper() if self.provider else 'IA'}: {type(e).__name__}")
             print(f"[AI ANALYZER] Detalhes: {str(e)}")
             print(f"[AI ANALYZER] Voltando para modo automático...")
             return self._fallback_analysis(readings, statistics)
