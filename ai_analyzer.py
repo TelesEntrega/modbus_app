@@ -38,7 +38,7 @@ class TemperatureAIAnalyzer:
         if GEMINI_AVAILABLE and self.api_key:
             try:
                 genai.configure(api_key=self.api_key)
-                self.model = genai.GenerativeModel('gemini-1.5-flash')
+                self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
                 print("[AI ANALYZER] Google Gemini configurado ✅")
             except Exception as e:
                 print(f"[AI ANALYZER] Erro ao configurar Gemini: {e}")
