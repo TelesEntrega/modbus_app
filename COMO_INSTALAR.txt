@@ -1,0 +1,39 @@
+========================================================================
+   GUIA DE INSTALAÇÃO - PC INDUSTRIAL
+========================================================================
+
+Este guia explica como rodar o sistema de Monitoramento Modbus em um novo PC.
+
+PRÉ-REQUISITOS
+----------------
+1. Python 3.10 ou superior instalado.
+   - Baixe em: https://www.python.org/downloads/
+   - IMPORTANTE: Na instalação, marque a caixa "Add Python to PATH".
+
+2. Conexão de Rede
+   - O PC deve estar na mesma rede que o CLP (192.168.0.x).
+   - Endereço IP do CLP padrão: 192.168.0.200
+
+INSTALAÇÃO
+----------------
+1. Copie a pasta "modbus_app" inteira para o PC Industrial (ex: C:\Projetos\modbus_app).
+
+2. Acesse a pasta e dê dois cliques no arquivo:
+   >> setup_industrial.bat
+
+3. O script fará tudo automaticamente:
+   - Criará um ambiente virtual isolado.
+   - Baixará as bibliotecas necessárias.
+   - Iniciará o sistema.
+   - Abrirá o navegador.
+
+----------------
+NOTAS
+----------------
+- Se precisar mudar o IP do CLP, edite o arquivo "modbus_client.py" ou "watchdog.py".
+- Para usar a IA (Google Gemini), edite o arquivo ".env" e coloque sua chave API.
+- Para acessar de outros PCs/Celulares na rede, use o IP deste PC Industrial no navegador (Ex: http://192.168.0.50:5000).
+
+SUPORTE
+----------------
+Se a janela fechar imediatamente, execute o 'setup_industrial.bat' via CMD para ver o erro.

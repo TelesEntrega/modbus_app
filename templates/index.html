@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controlador Modbus CLP - Interface Web</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏭 Controlador Modbus CLP</h1>
+            <p>Interface moderna para leitura e escrita de variáveis</p>
+        </header>
+
+        <!-- Connection Status -->
+        <div class="connection-status">
+            <div class="status-info">
+                <div class="status-indicator" id="statusIndicator"></div>
+                <div class="status-details">
+                    <strong>Status da Conexão</strong>
+                    <span id="statusText">Conectando...</span>
+                </div>
+            </div>
+            <div class="config-inputs">
+                <input type="text" id="clpIp" placeholder="IP do CLP" value="localhost">
+                <input type="number" id="clpPort" placeholder="Porta" value="5020">
+                <button class="btn btn-primary" onclick="updateConfig()">
+                    🔄 Atualizar
+                </button>
+                <button class="btn btn-success" onclick="readAllVariables()">
+                    📊 Ler Todas
+                </button>
+            </div>
+        </div>
+
+        <!-- Variables Grid -->
+        <div class="variables-grid">
+            <!-- BOOL Variables -->
+            <div class="variable-section bool">
+                <h2>🔘 Variáveis Booleanas</h2>
+                <div id="boolVariables"></div>
+            </div>
+
+            <!-- INT Variables -->
+            <div class="variable-section int">
+                <h2>🔢 Variáveis Inteiras</h2>
+                <div id="intVariables"></div>
+            </div>
+
+            <!-- REAL Variables -->
+            <div class="variable-section real">
+                <h2>📈 Variáveis Reais</h2>
+                <div id="realVariables"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

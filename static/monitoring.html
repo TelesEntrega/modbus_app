@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento de Temperatura - CLP Altus</title>
+    <link rel="stylesheet" href="/static/monitoring.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🌡️ Monitoramento de Temperatura</h1>
+                <!-- Navigation Menu -->
+                <nav class="nav-menu">
+                    <a href="/" class="nav-item">
+                        <span class="nav-icon">🎛️</span>
+                        <span class="nav-text">Controle</span>
+                    </a>
+                    <a href="/monitoring" class="nav-item active">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">Monitoramento</span>
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="dashboard-grid">
+            <!-- Current Temperature Card -->
+            <div class="card card-current">
+                <h2>Temperatura Atual</h2>
+                <div class="temp-display">
+                    <span class="temp-value" id="currentTemp">--</span>
+                    <span class="temp-unit">°C</span>
+                </div>
+                <div class="temp-status" id="tempStatus">Aguardando dados...</div>
+                <div class="last-update">Última atualização: <span id="lastUpdate">--</span></div>
+            </div>
+
+            <!-- Statistics Card -->
+            <div class="card card-stats">
+                <h2>📊 Estatísticas (24h)</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">Mínima</span>
+                        <span class="stat-value" id="statMin">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Máxima</span>
+                        <span class="stat-value" id="statMax">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Média</span>
+                        <span class="stat-value" id="statAvg">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Desvio Padrão</span>
+                        <span class="stat-value" id="statStdev">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Anomalias</span>
+                        <span class="stat-value anomaly" id="statAnomalies">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Leituras</span>
+                        <span class="stat-value" id="statCount">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Card -->
+            <div class="card card-chart">
+                <div class="chart-header">
+                    <h2>📈 Histórico de Temperatura</h2>
+                    <div class="chart-controls">
+                        <button class="btn-chart" onclick="updateChartRange(100)">100 pts</button>
+                        <button class="btn-chart active" onclick="updateChartRange(200)">200 pts</button>
+                        <button class="btn-chart" onclick="updateChartRange(500)">500 pts</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="temperatureChart"></canvas>
+                </div>
+            </div>
+
+            <!-- AI Analysis Card -->
+            <div class="card card-ai">
+                <div class="ai-header">
+                    <h2>🤖 Análise de IA</h2>
+                    <button class="btn-analyze" onclick="performAnalysis()">🔄 Analisar Agora</button>
+                </div>
+                <div class="ai-content">
+                    <div id="aiAnalysis" class="ai-text">
+                        Clique em "Analisar Agora" para gerar insights sobre o comportamento da temperatura.
+                    </div>
+                    <div class="ai-footer">
+                        <span id="aiTimestamp"></span>
+                        <span id="aiStatus"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Card -->
+            <div class="card card-report">
+                <h2>📝 Relatório</h2>
+                <div class="report-controls">
+                    <button class="btn-report" onclick="generateReport()">Gerar Relatório Completo</button>
+                </div>
+                <div id="reportOutput" class="report-output"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Sistema de Monitoramento Inteligente • Atualização automática a cada 5 segundos</p>
+        </footer>
+    </div>
+
+    <script src="/static/monitoring.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,22 @@
+# Python stuff
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+
+# Environment Variables
+.env
+
+# Database (Binary file, avoid syncing to prevent conflicts)
+*.db
+temperature_data.db
+
+# IDE settings
+.vscode/
+.idea/
+
+# Logs
+*.log

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle CLP - Altus XP-325</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            color: #e6edf3;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0 20px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #30363d;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #58a6ff 0%, #79c0ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .nav-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #21262d;
+            border: 2px solid #30363d;
+            border-radius: 8px;
+            color: #8b949e;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            border-color: #58a6ff;
+            color: #58a6ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.2);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #1f6feb 0%, #388bfd 100%);
+            border-color: #1f6feb;
+            color: white;
+            box-shadow: 0 4px 12px rgba(31, 111, 235, 0.3);
+        }
+
+        .nav-icon {
+            font-size: 1.2em;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #21262d;
+            border-radius: 8px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #3fb950;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .table-container {
+            background: #0d1117;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #161b22;
+            border-bottom: 2px solid #30363d;
+        }
+
+        th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #58a6ff;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        th:last-child {
+            text-align: center;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #21262d;
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: #161b22;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        td {
+            padding: 16px;
+        }
+
+        .var-name {
+            font-weight: 600;
+            color: #e6edf3;
+            font-size: 1em;
+        }
+
+        .var-type {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .type-bool {
+            background: #1f6feb;
+            color: #fff;
+        }
+
+        .type-int {
+            background: #bf8700;
+            color: #fff;
+        }
+
+        .address-cell {
+            font-family: 'Courier New', monospace;
+            color: #79c0ff;
+            font-size: 0.9em;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        input[type="number"],
+        select {
+            flex: 1;
+            padding: 10px 12px;
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #e6edf3;
+            font-size: 0.95em;
+            transition: all 0.2s ease;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        .value-display {
+            padding: 10px 12px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            min-width: 100px;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            color: #3fb950;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-read {
+            background: #238636;
+            color: white;
+        }
+
+        .btn-read:hover {
+            background: #2ea043;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(46, 160, 67, 0.3);
+        }
+
+        .btn-write {
+            background: #1f6feb;
+            color: white;
+        }
+
+        .btn-write:hover {
+            background: #388bfd;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(31, 111, 235, 0.3);
+        }
+
+        .btn-read:active,
+        .btn-write:active {
+            transform: translateY(0);
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .message-success {
+            background: #238636;
+            color: white;
+            border: 1px solid #2ea043;
+        }
+
+        .message-error {
+            background: #da3633;
+            color: white;
+            border: 1px solid #f85149;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            th,
+            td {
+                padding: 12px 8px;
+                font-size: 0.85em;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🔧 Controle CLP Modbus</h1>
+
+            <!-- Navigation Menu -->
+            <nav class="nav-menu">
+                <a href="/" class="nav-item active">
+                    <span class="nav-icon">🎛️</span>
+                    <span class="nav-text">Controle</span>
+                </a>
+                <a href="/monitoring" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Monitoramento</span>
+                </a>
+            </nav>
+
+            <div class="status" id="connectionStatus">
+                <span class="status-indicator"></span>
+                <span>Conectado - Altus XP-325 (192.168.0.200)</span>
+            </div>
+        </header>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Variável</th>
+                        <th>Tipo</th>
+                        <th>Endereço</th>
+                        <th>Setar Valor</th>
+                        <th>Valor Atual</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- PC_Start (Coil 1) -->
+                    <tr>
+                        <td class="var-name">PC_Start</td>
+                        <td><span class="var-type type-bool">BOOL</span></td>
+                        <td class="address-cell">Coil 1</td>
+                        <td>
+                            <div class="input-group">
+                                <select id="input_PC_Start">
+                                    <option value="0">False (0)</option>
+                                    <option value="1">True (1)</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="value-display" id="value_PC_Start">--</div>
+                        </td>
+                        <td class="actions">
+                            <button class="btn-read" onclick="readVariable('PC_Start', 'BOOL', 1)">📖 Ler</button>
+                            <button class="btn-write" onclick="writeVariable('PC_Start', 'BOOL', 1)">✍️
+                                Escrever</button>
+                        </td>
+                    </tr>
+
+                    <!-- PC_Stop (Coil 2) -->
+                    <tr>
+                        <td class="var-name">PC_Stop</td>
+                        <td><span class="var-type type-bool">BOOL</span></td>
+                        <td class="address-cell">Coil 2</td>
+                        <td>
+                            <div class="input-group">
+                                <select id="input_PC_Stop">
+                                    <option value="0">False (0)</option>
+                                    <option value="1">True (1)</option>
+                                </select>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="value-display" id="value_PC_Stop">--</div>
+                        </td>
+                        <td class="actions">
+                            <button class="btn-read" onclick="readVariable('PC_Stop', 'BOOL', 2)">📖 Ler</button>
+                            <button class="btn-write" onclick="writeVariable('PC_Stop', 'BOOL', 2)">✍️ Escrever</button>
+                        </td>
+                    </tr>
+
+                    <!-- PC_Estado (HR 40003) -->
+                    <tr>
+                        <td class="var-name">PC_Estado</td>
+                        <td><span class="var-type type-int">INT</span></td>
+                        <td class="address-cell">HR 40003</td>
+                        <td>
+                            <div class="input-group">
+                                <input type="number" id="input_PC_Estado" placeholder="0-32767" min="-32768"
+                                    max="32767">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="value-display" id="value_PC_Estado">--</div>
+                        </td>
+                        <td class="actions">
+                            <button class="btn-read" onclick="readVariable('PC_Estado', 'INT', 40003)">📖 Ler</button>
+                            <button class="btn-write" onclick="writeVariable('PC_Estado', 'INT', 40003)">✍️
+                                Escrever</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
